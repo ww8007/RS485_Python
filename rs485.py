@@ -1,4 +1,6 @@
 import serial
+import serial.rs485
+
 ser = serial.Serial(
     port='COM3',\
     baudrate=19200,\
@@ -29,12 +31,24 @@ print ("Returning single value %d %2x %2x" %(res, res>>8, res & 0xff))
 print("resss", res>>8, res & 0xff);
 
 RequestData= [0x01, 0x03, 0x9C, 0x42, 0x00, 0x02, res>>8, res & 0xff]
-print(RequestData)
+ser.write(bytes(bytearray([0x01]))) ##1
+ser.write(bytes(bytearray([0x03]))) ##2
+ser.write(bytes(bytearray([0x9C]))) ##3
+ser.write(bytes(bytearray([0x42]))) ##4
+ser.write(bytes(bytearray([0x00]))) ##5
+ser.write(bytes(bytearray([0x02]))) ##5
+ser.write(bytes(bytearray([0xD1]))) ##6
+ser.write(bytes(bytearray([0x88]))) ##7
 
-sow = ser.read_bytes(RequestData)
+res = ser.read();
+print('hgi',res);
 
-print(sow)
-print("numbers11",leng)
+for i in range (0, 7):
+    res = ser.read();
+    print(res)
+
+
+
   
 ser.read(ser.inWaiting()) #입력방식1
 ser.close()
