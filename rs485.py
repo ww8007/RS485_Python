@@ -2,6 +2,8 @@ import os, sys
 import serial 
 import time # 시리얼 장치 연결 # 보레이드 9600, 장치 위치 ttyUSB0 
 import struct
+# timeout을 무조건 줘야 한다.
+# 이를 안해서 오류가 났다.
 ser = serial.Serial(
     port='COM3',\
     baudrate=19200,\
@@ -34,25 +36,34 @@ print('good',RequestData)
 print(res)
 print(bytes(bytearray([res>> 8, res & 0xff])))
 
+# 방사율 변경
+def changeEmissivity():
+    Emissivity = int(input("방사율을 입력하세요"))
+    Emissivity  =hex(Emissivity) #16진수로 바꿈
+    print(Emissivity);
+    ser.write(bytearray([0x01, 0x06, 0x9C, 0x41, 0x00, Emissivity, 0x4A, 0x4F]))
 
+def changeEmissivity():
+    Emissivity = int(input("방사율을 입력하세요"))
+    Emissivity  =hex(Emissivity) #16진수로 바꿈
+    print(Emissivity);
+    ser.write(bytearray([0x01, 0x06, 0x9C, 0x41, 0x00, Emissivity, 0x4A, 0x4F]))
 
 def run(): #시리얼 쓰기 
     # print('ReqeustDatais',bytes(bytearray([0x01, 0x03, 0x9C, 0x42, 0x00, 0x02, 0x4A, 0x4F])))
     ser.write(bytes(bytearray([0x01, 0x03, 0x9C, 0x42, 0x00, 0x02, 0x4A, 0x4F]))) 
     count = 1
     data = 0
+    line = []
     while True: 
-        # 시리얼 읽기 (5바이트씩 읽음) 
-        line = ser.read() 
+        # 시리얼 읽기 
+        line.append(ser.read())
         # print(count,bytearray(line))
-    
         if (count ==4):
              x1 = int.from_bytes(line, byteorder='big', signed=True) *256
-        
              data = data + x1
         if (count == 5):
             x2 =  int.from_bytes(line, byteorder='big', signed=True)
-   
             data = data + x2
         count += 1
         if (count ==10):
@@ -63,5 +74,5 @@ def run(): #시리얼 쓰기
        
 
 while(True):
-    run()
+   changeEmissivity()
 
